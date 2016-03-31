@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/microserv/publishing/issues"
   },
-  "homepage": "https://github.com/microserv/publishing#readme"
+  "homepage": "https://github.com/microserv/publishing#readme",
+  "dependencies": {
+    "express": "^4.13.4"
+  }
 }
