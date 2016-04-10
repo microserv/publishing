@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+<script>
+$(document).ready(function(){
+	$("button").click(function(){
+			var url = "http://127.0.0.1:3000/save_article";
+			var data = {name : "my_article", article : "data goes here"};
+			function success(data, textStatus, jqXHR) {
+				alert("success!");
+				alert(jqXHR.status);
+			}
+			function fail() {
+				alert("fail!");
+			}
+			
+			$.post(url, data).done(success).fail(fail);
+	});
+});
+</script>
+</head>
+<body>
+
+<button>Send an HTTP POST request</button>
+
+</body>
+</html>
