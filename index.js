@@ -61,7 +61,7 @@ app.get("/list", function (req, res) {
 
 app.get("/article/*", function (req, res) {
 	try {
-		var article_name = req.url.substr(9);
+		var article_name = req.url.substr(-24);
 		var new_id = new ObjectId(article_name);
 		
 		MongoClient.connect(mdb_url, function(err, db) {
@@ -96,7 +96,7 @@ app.options("/article_json/*", function (req, res) {
 
 app.get("/article_json/*", function (req, res) {
 	try {
-		var article_name = req.url.substr(14);
+		var article_name = req.url.substr(-24);
 		var new_id = new ObjectId(article_name);
 		
 		MongoClient.connect(mdb_url, function(err, db) {
@@ -116,7 +116,7 @@ app.get("/article_json/*", function (req, res) {
 
 app.delete("/article_json/*", function (req, res) {  
 	try {
-		var article_name = req.url.substr(14);
+		var article_name = req.url.substr(-24);
 		var new_id = new ObjectId(article_name);
 		
 		MongoClient.connect(mdb_url, function(err, db) {
