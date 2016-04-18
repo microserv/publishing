@@ -7,18 +7,13 @@
 <script>
 $(document).ready(function(){
 	$("button").click(function(){
-			var url = "http://127.0.0.1:3000/save_article";
-			var article = "Hello world!";
-			var data = {tags: "ttt, ttt, ttt", description: "dddddddddd.", article: article, title: "Hello World"};
-			function success(data, textStatus, jqXHR) {
+		$.ajax({
+			url: "http://127.0.0.1:3000/article_json/57147214698622bc32a3b7f5",
+			type: "DELETE",
+			success: function(result) {
 				alert("success!");
-				alert(jqXHR.status);
 			}
-			function fail() {
-				alert("fail!");
-			}
-			
-			$.post(url, data).done(success).fail(fail);
+		});
 	});
 });
 </script>

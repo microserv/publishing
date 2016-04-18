@@ -5,7 +5,7 @@ var morgan = require('morgan')
 var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
-var url = 'mongodb://localhost:27017/IT2901';
+var mdb_url = 'mongodb://localhost:27017/IT2901';
 
 var app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -18,59 +18,121 @@ app.use(function(req, res, next) {
 	next();
 });
 
-app.post("/save_article", function (req, res) {  
-	//var file = "article.json";
-	//jsonfile.writeFile(file, req.body, function (err) {
-	//	if (err) console.error(err);
-	//	else console.log("Saved data!");
-	//});
-  
-	//console.log(req.body.article);
-  
-	MongoClient.connect(url, function(err, db) {
-		assert.equal(null, err);
-		db.collection("publishing").insertOne(req.body, function(err, result) {
-			assert.equal(err, null);
-			//console.log("Inserted a document into the publishing collection.");
+app.post("/save_article", function (req, res) {
+	try {
+		MongoClient.connect(mdb_url, function(err, db) {
+			assert.equal(null, err);
+			db.collection("publishing").insertOne(req.body, function(err, result) {
+				assert.equal(err, null);
+			});
 		});
-	});
-  
-	res.sendStatus(204);
+		
+		res.sendStatus(204);
+	}
+	
+	catch (err) {
+		res.sendStatus(500);
+		console.log(err.message);
+	}
 });
 
 app.get("/list", function (req, res) {
-	MongoClient.connect(url, function(err, db) {
-		assert.equal(null, err);
-		var art_list = db.collection('publishing').find().toArray(function(err, documents) {
-			var art_list = [];
-			for (i = 0; i < documents.length; i++) {
-				art_list.push({id:documents[i]._id.toHexString(), title:documents[i].title});
-			}
-			db.close();
-			
-			//for (i = 0; i < art_list.length; i++) {
-			//	console.log(art_list[i].id + ", " + art_list[i].title);
-			//}
-			
-			list_response = {list: art_list};
-			res.send(JSON.stringify(list_response));
+	try {
+		MongoClient.connect(mdb_url, function(err, db) {
+			assert.equal(null, err);
+			var art_list = db.collection('publishing').find().toArray(function(err, documents) {
+				var art_list = [];
+				for (i = 0; i < documents.length; i++) {
+					art_list.push({id:documents[i]._id.toHexString(), title:documents[i].title, description:documents[i].description});
+				}
+				db.close();
+				
+				list_response = {list: art_list};
+				res.send(JSON.stringify(list_response));
+			});
 		});
-    });
-})
+	}
+		
+	catch (err) {
+		res.sendStatus(500);
+		console.log(err.message);
+	}
+});
 
 app.get("/article/*", function (req, res) {
-	var article_name = req.url.substr(9);
-	var new_id = new ObjectId(article_name);
-	
-	MongoClient.connect(url, function(err, db) {
-		assert.equal(null, err);	
-		db.collection('publishing').findOne({"_id":new_id}, function(err, doc){
-			res.send(doc.article);
+	try {
+		var article_name = req.url.substr(9);
+		var new_id = new ObjectId(article_name);
+		
+		MongoClient.connect(mdb_url, function(err, db) {
+			assert.equal(null, err);	
+			db.collection('publishing').findOne({"_id":new_id}, function(err, doc){
+				article_start = "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><title>";
+				article_mid = "</title></head><body>";
+				article_end = "</body></html>";
+				res.send(article_start+doc.title+article_mid+doc.article+article_end);
+			});
+		
 		});
-	
-	});
-})
+	}
+		
+	catch (err) {
+		res.sendStatus(500);
+		console.log(err.message);
+	}
+});
+
+app.options("/article_json/*", function (req, res) {
+	try {
+		res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+		res.sendStatus(204);
+	}
+		
+	catch (err) {
+		res.sendStatus(500);
+		console.log(err.message);
+	}
+});
+
+app.get("/article_json/*", function (req, res) {
+	try {
+		var article_name = req.url.substr(14);
+		var new_id = new ObjectId(article_name);
+		
+		MongoClient.connect(mdb_url, function(err, db) {
+			assert.equal(null, err);	
+			db.collection('publishing').findOne({"_id":new_id}, function(err, doc){
+				res.send(JSON.stringify(doc));
+			});
+		
+		});
+	}
+		
+	catch (err) {
+		res.sendStatus(500);
+		console.log(err.message);
+	}
+});
+
+app.delete("/article_json/*", function (req, res) {  
+	try {
+		var article_name = req.url.substr(14);
+		var new_id = new ObjectId(article_name);
+		
+		MongoClient.connect(mdb_url, function(err, db) {
+			assert.equal(null, err);
+			db.collection('publishing').remove({"_id":new_id});
+		});
+		
+		res.sendStatus(204);
+	}
+		
+	catch (err) {
+		res.sendStatus(500);
+		console.log(err.message);
+	}
+});
 
 app.listen(3000, function () {
-	//console.log("Publishing app listening on port 3000!");
+	console.log("Publishing app listening on port 3000!");
 });
