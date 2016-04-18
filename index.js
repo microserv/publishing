@@ -2,10 +2,13 @@ var express = require('express');
 var bodyParser = require('body-parser')
 var jsonfile = require('jsonfile')
 var morgan = require('morgan')
+var request = require('request');
 var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
-var mdb_url = 'mongodb://localhost:27017/IT2901';
+
+var mdb_url = "mongodb://localhost:27017/IT2901";
+var indexer_url = "http://localhost:8001";
 
 var app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -18,16 +21,24 @@ app.use(function(req, res, next) {
 	next();
 });
 
-app.post("/save_article", function (req, res) {
+app.post("/save_article", function (req, res) {	
 	try {
 		MongoClient.connect(mdb_url, function(err, db) {
 			assert.equal(null, err);
 			db.collection("publishing").insertOne(req.body, function(err, result) {
 				assert.equal(err, null);
+				
+				request.post(indexer_url, {task : "publishedArticle" , articleID : result.insertedId.toHexString()}, function(err,httpResponse,body) {
+					if (err != null) {
+						console.log("Could not update indexer.");
+						console.log(err.message);
+					}
+				});
 			});
 		});
 		
 		res.sendStatus(204);
+		success = true;
 	}
 	
 	catch (err) {
@@ -122,6 +133,13 @@ app.delete("/article_json/*", function (req, res) {
 		MongoClient.connect(mdb_url, function(err, db) {
 			assert.equal(null, err);
 			db.collection('publishing').remove({"_id":new_id});
+			
+			request.post(indexer_url, {task : "removedArticle" , articleID : article_name}, function(err,httpResponse,body) {
+				if (err != null) {
+					console.log("Could not update indexer.");
+					console.log(err.message);
+				}
+			});
 		});
 		
 		res.sendStatus(204);
