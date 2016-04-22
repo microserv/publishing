@@ -21,11 +21,13 @@ app.use( bodyParser.json() );
 app.use(morgan('dev'));
 
 var REQUIRE_AUTH = {
-    LIST: false,
+    LIST: true,
     DETAIL: false,
     SAVE: true,
     DELETE: true
 }
+
+var REDIRECT_TO_AUTHORIZE = true;
 
 function isCredentialExpired(oauth2) {
     return oauth2.issued_at + oauth2.expires_in < Date.now()
@@ -40,14 +42,20 @@ app.use(function(req, res, next) {
 app.post("/save_article", function (req, res) {
     if (REQUIRE_AUTH.SAVE && !req.session.oauth2) {
         req.session.next = req.url
-        res.sendStatus(401, 'You need to be authenticated to do this action.')
-        // res.redirect('/connect/microauth')
+        if (REDIRECT_TO_AUTHORIZE) {
+            res.redirect('/connect/microauth')
+        } else {
+            res.sendStatus(401, 'You need to be authenticated to do this action.')
+        }
         return
     } else if (REQUIRE_AUTH) {
         if (isCredentialExpired(req.session.oauth2)) {
             req.session.next = req.url
-            res.sendStatus(401, 'Signature has expired, please re-authenticate.')
-            // res.redirect('/connect/microauth')
+            if (REDIRECT_TO_AUTHORIZE) {
+                res.redirect('/connect/microauth')
+            } else {
+                res.sendStatus(401, 'Signature has expired, please re-authenticate.')
+            }
             return
         }
     }
@@ -106,8 +114,11 @@ app.get('/done', function (req, res) {
 app.get("/list", function (req, res) {
     if (REQUIRE_AUTH.LIST && (!req.session || !req.session.oauth2)) {
         req.session.next = req.url
-        res.sendStatus(401, 'You need to be authenticated to do this action.')
-        // res.redirect('/connect/microauth')
+        if (REDIRECT_TO_AUTHORIZE) {
+            res.redirect('/connect/microauth')
+        } else {
+            res.sendStatus(401, 'You need to be authenticated to do this action.')
+        }
         return
     }
 	try {
@@ -190,14 +201,20 @@ app.get("/article_json/*", function (req, res) {
 app.delete("/article_json/*", function (req, res) {  
     if (REQUIRE_AUTH.DELETE && !req.session.oauth2) {
         req.session.next = req.url
-        res.sendStatus(401, 'You need to be authenticated to do this action.')
-        res.redirect('/connect/microauth')
+        if (REDIRECT_TO_AUTHORIZE) {
+            res.redirect('/connect/microauth')
+        } else {
+            res.sendStatus(401, 'You need to be authenticated to do this action.')
+        }
         return
     } else if (REQUIRE_AUTH.DELETE) {
         if (isCredentialExpired(req.session.oauth2)) {
             req.session.next = req.url
-            res.sendStatus(401, 'Signature has expired, please re-authenticate.')
-            res.redirect('/connect/microauth')
+            if (REDIRECT_TO_AUTHORIZE) {
+                res.redirect('/connect/microauth')
+            } else {
+                res.sendStatus(401, 'Signature has expired, please re-authenticate.')
+            }
             return
         }
     }
