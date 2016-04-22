@@ -1,0 +1,16 @@
+{
+    "server": {
+        "protocol": "http",
+        "host": "localhost:3000"
+    },
+    "microauth": {
+        "authorize_url": "http://127.0.0.1:8000/oauth2/authorize/",
+        "access_url": "http://127.0.0.1:8000/oauth2/token/",
+        "oauth": 2,
+        "key": "",
+        "secret": "",
+        "scope": ["publishing.read", "publishing.write", "publishing.delete"],
+        "scope_delimiter": " ",
+        "callback": "/done"
+    }
+}
