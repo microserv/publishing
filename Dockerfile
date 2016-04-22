@@ -16,7 +16,6 @@ RUN curl -o /etc/nginx/nginx.conf https://128.no/f/nginx.conf
 WORKDIR ${BASE_DIR}
 RUN npm install .
 
-# For some reason /run is not a dir in this image, so we need to create it.
-RUN rm /run && mkdir -p /run/nginx
+RUN mkdir -p /run/nginx
 
 EXPOSE 80
