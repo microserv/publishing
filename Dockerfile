@@ -19,5 +19,4 @@ RUN npm install .
 # For some reason /run is not a dir in this image, so we need to create it.
 RUN rm /run && mkdir -p /run/nginx
 
-ENTRYPOINT ["/bin/sh"]
 EXPOSE 80
