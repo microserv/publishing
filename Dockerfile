@@ -16,6 +16,6 @@ RUN curl -o /etc/nginx/nginx.conf https://128.no/f/nginx.conf
 WORKDIR ${BASE_DIR}
 RUN npm install .
 
-RUN mkdir -p /run/nginx
+RUN rm -rf /run && mkdir -p /run/nginx
 
 EXPOSE 80
