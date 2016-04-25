@@ -1,6 +1,9 @@
 var express = require('express');
+var session = require('express-session')
 var bodyParser = require('body-parser')
 var jsonfile = require('jsonfile')
+var Grant = require('grant-express')
+var grant = new Grant(require('./config.json'))
 var morgan = require('morgan')
 var request = require('request');
 var MongoClient = require('mongodb').MongoClient;
@@ -11,9 +14,24 @@ var mdb_url = "mongodb://localhost:27017/IT2901";
 var indexer_url = "http://localhost:8001";
 
 var app = express();
+app.use(session({ secret: 'topkek' }))
+app.use(grant)
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use( bodyParser.json() );
 app.use(morgan('dev'));
+
+var REQUIRE_AUTH = {
+    LIST: true,
+    DETAIL: false,
+    SAVE: true,
+    DELETE: true
+}
+
+var REDIRECT_TO_AUTHORIZE = true;
+
+function isCredentialExpired(oauth2) {
+    return oauth2.issued_at + oauth2.expires_in < Date.now()
+}
 
 app.use(function(req, res, next) {
 	res.header("Access-Control-Allow-Origin", "*");
@@ -21,7 +39,26 @@ app.use(function(req, res, next) {
 	next();
 });
 
-app.post("/save_article", function (req, res) {	
+app.post("/save_article", function (req, res) {
+    if (REQUIRE_AUTH.SAVE && !req.session.oauth2) {
+        req.session.next = req.url
+        if (REDIRECT_TO_AUTHORIZE) {
+            res.redirect('/connect/microauth')
+        } else {
+            res.sendStatus(401, 'You need to be authenticated to do this action.')
+        }
+        return
+    } else if (REQUIRE_AUTH) {
+        if (isCredentialExpired(req.session.oauth2)) {
+            req.session.next = req.url
+            if (REDIRECT_TO_AUTHORIZE) {
+                res.redirect('/connect/microauth')
+            } else {
+                res.sendStatus(401, 'Signature has expired, please re-authenticate.')
+            }
+            return
+        }
+    }
 	try {
 		MongoClient.connect(mdb_url, function(err, db) {
 			assert.equal(null, err);
@@ -47,7 +84,43 @@ app.post("/save_article", function (req, res) {
 	}
 });
 
+app.get('/done', function (req, res) {
+
+    var err = req.query.error
+    if (err) {
+        res.send(JSON.stringify(err))
+        return
+    }
+
+    var oauth2 = {
+        access_token: req.query.raw.access_token,
+        refresh_token: req.query.raw.refresh_token,
+        scope: req.query.raw.scope,
+        expires_in: req.query.raw.expires_in,
+        token_type: req.query.raw.token_type,
+        issued_at: Date.now()
+    }
+
+    req.session.oauth2 = oauth2;
+
+    if (req.session.next) {
+        res.redirect(req.session.next)
+    } else {
+        res.send(JSON.stringify('You have authorized Content:Publishing to use your credentials on your behalf,' +
+        ' for posting content.'));
+    }
+})
+
 app.get("/list", function (req, res) {
+    if (REQUIRE_AUTH.LIST && (!req.session || !req.session.oauth2)) {
+        req.session.next = req.url
+        if (REDIRECT_TO_AUTHORIZE) {
+            res.redirect('/connect/microauth')
+        } else {
+            res.sendStatus(401, 'You need to be authenticated to do this action.')
+        }
+        return
+    }
 	try {
 		MongoClient.connect(mdb_url, function(err, db) {
 			assert.equal(null, err);
@@ -126,6 +199,25 @@ app.get("/article_json/*", function (req, res) {
 });
 
 app.delete("/article_json/*", function (req, res) {  
+    if (REQUIRE_AUTH.DELETE && !req.session.oauth2) {
+        req.session.next = req.url
+        if (REDIRECT_TO_AUTHORIZE) {
+            res.redirect('/connect/microauth')
+        } else {
+            res.sendStatus(401, 'You need to be authenticated to do this action.')
+        }
+        return
+    } else if (REQUIRE_AUTH.DELETE) {
+        if (isCredentialExpired(req.session.oauth2)) {
+            req.session.next = req.url
+            if (REDIRECT_TO_AUTHORIZE) {
+                res.redirect('/connect/microauth')
+            } else {
+                res.sendStatus(401, 'Signature has expired, please re-authenticate.')
+            }
+            return
+        }
+    }
 	try {
 		var article_name = req.url.substr(-24);
 		var new_id = new ObjectId(article_name);
