@@ -10,6 +10,9 @@ var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
 
+var CONFIGURATION = require('./config.json')
+
+var authUrl = CONFIGURATION.microauth._host
 var mdb_url = "mongodb://localhost:27017/IT2901";
 var indexer_url = "http://localhost:8001";
 
@@ -27,10 +30,34 @@ var REQUIRE_AUTH = {
     DELETE: true
 }
 
-var REDIRECT_TO_AUTHORIZE = true;
+var REDIRECT_TO_AUTHORIZE = false;
 
 function isCredentialExpired(oauth2) {
     return oauth2.issued_at + oauth2.expires_in < Date.now()
+}
+
+function requiresAuthentication(req) {
+    var authorizationHeader = req.get('Authorization');
+    if (req.session.oauth2) {
+        if (!isCredentialExpired(req.session.oauth2)) {
+            return false
+        }
+    } else if (authorizationHeader !== "" && authorizationHeader !== undefined) {
+        request.get({
+            uri: authUrl + 'verify/',
+            headers: {'Authorization': authorizationHeader},
+          },
+          function (err, response, body) {
+            if (err !== null || response.statusCode !== 200) {
+                return true
+            } else {
+                return false
+            }
+          }
+        )
+    } else {
+        return true
+    }
 }
 
 app.use(function(req, res, next) {
@@ -40,23 +67,15 @@ app.use(function(req, res, next) {
 });
 
 app.post("/save_article", function (req, res) {
-    if (REQUIRE_AUTH.SAVE && !req.session.oauth2) {
-        req.session.next = req.url
-        if (REDIRECT_TO_AUTHORIZE) {
-            res.redirect('/connect/microauth')
-        } else {
-            res.sendStatus(401, 'You need to be authenticated to do this action.')
-        }
-        return
-    } else if (REQUIRE_AUTH) {
-        if (isCredentialExpired(req.session.oauth2)) {
-            req.session.next = req.url
+    if (REQUIRE_AUTH.SAVE) {
+        if (requiresAuthentication(req)) {
             if (REDIRECT_TO_AUTHORIZE) {
+                req.session.next = req.url
                 res.redirect('/connect/microauth')
             } else {
-                res.sendStatus(401, 'Signature has expired, please re-authenticate.')
-            }
-            return
+                res.sendStatus(401, 'You need to be authenticated to do this action.')
+                return
+            } 
         }
     }
 	try {
@@ -112,14 +131,16 @@ app.get('/done', function (req, res) {
 })
 
 app.get("/list", function (req, res) {
-    if (REQUIRE_AUTH.LIST && (!req.session || !req.session.oauth2)) {
-        req.session.next = req.url
-        if (REDIRECT_TO_AUTHORIZE) {
-            res.redirect('/connect/microauth')
-        } else {
-            res.sendStatus(401, 'You need to be authenticated to do this action.')
+    if (REQUIRE_AUTH.LIST) {
+        if (requiresAuthentication(req)) {
+            if (REDIRECT_TO_AUTHORIZE) {
+                req.session.next = req.url
+                res.redirect('/connect/microauth')
+            } else {
+                res.sendStatus(401, 'You need to be authenticated to do this action.')
+                return
+            } 
         }
-        return
     }
 	try {
 		MongoClient.connect(mdb_url, function(err, db) {
@@ -199,23 +220,15 @@ app.get("/article_json/*", function (req, res) {
 });
 
 app.delete("/article_json/*", function (req, res) {  
-    if (REQUIRE_AUTH.DELETE && !req.session.oauth2) {
-        req.session.next = req.url
-        if (REDIRECT_TO_AUTHORIZE) {
-            res.redirect('/connect/microauth')
-        } else {
-            res.sendStatus(401, 'You need to be authenticated to do this action.')
-        }
-        return
-    } else if (REQUIRE_AUTH.DELETE) {
-        if (isCredentialExpired(req.session.oauth2)) {
-            req.session.next = req.url
+    if (REQUIRE_AUTH.DELETE) {
+        if (requiresAuthentication(req)) {
             if (REDIRECT_TO_AUTHORIZE) {
+                req.session.next = req.url
                 res.redirect('/connect/microauth')
             } else {
-                res.sendStatus(401, 'Signature has expired, please re-authenticate.')
-            }
-            return
+                res.sendStatus(401, 'You need to be authenticated to do this action.')
+                return
+            } 
         }
     }
 	try {
