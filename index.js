@@ -24,7 +24,7 @@ app.use( bodyParser.json() );
 app.use(morgan('dev'));
 
 var REQUIRE_AUTH = {
-    LIST: true,
+    LIST: false,
     DETAIL: false,
     SAVE: true,
     DELETE: true

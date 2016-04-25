@@ -1,12 +1,12 @@
 {
     "server": {
         "protocol": "http",
-        "host": "localhost:3000"
+        "host": "localhost:33095"
     },
     "microauth": {
-        "_host": "http://127.0.0.1:8000/",
-        "authorize_url": "http://127.0.0.1:8000/oauth2/authorize/",
-        "access_url": "http://127.0.0.1:8000/oauth2/token/",
+        "_host": "http://127.0.0.1:33080/",
+        "authorize_url": "http://127.0.0.1:33080/oauth2/authorize/",
+        "access_url": "http://127.0.0.1:33080/oauth2/token/",
         "oauth": 2,
         "key": "",
         "secret": "",

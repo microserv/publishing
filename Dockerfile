@@ -1,4 +1,4 @@
-FROM backend-comm-mongo
+FROM localhost:5000/backend-comm-mongo
 MAINTAINER Pål Karlsrud <paal@128.no>
 
 ENV BASE_DIR /var/publishing
@@ -16,8 +16,6 @@ RUN curl -o /etc/nginx/nginx.conf https://128.no/f/nginx.conf
 WORKDIR ${BASE_DIR}
 RUN npm install .
 
-# For some reason /run is not a dir in this image, so we need to create it.
-RUN rm /run && mkdir -p /run/nginx
+RUN rm -rf /run && mkdir -p /run/nginx
 
-ENTRYPOINT ["/bin/sh"]
 EXPOSE 80
