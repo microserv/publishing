@@ -14,7 +14,7 @@ var CONFIGURATION = require('./config.json')
 
 var authUrl = CONFIGURATION.microauth._host
 var mdb_url = "mongodb://localhost:27017/IT2901";
-var indexer_url = "http://localhost:8001";
+var indexer_url = "http://despina.128.no/indexer";
 
 var app = express();
 app.use(session({ secret: 'topkek' }))
