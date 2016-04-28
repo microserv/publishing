@@ -83,8 +83,15 @@ app.post("/save_article", function (req, res) {
 			assert.equal(null, err);
 			db.collection("publishing").insertOne(req.body, function(err, result) {
 				assert.equal(err, null);
-				
-				request.post(indexer_url, {task : "publishedArticle" , articleID : result.insertedId.toHexString()}, function(err,httpResponse,body) {
+				var options = {
+					uri: indexer_url,
+					method: 'POST',
+					json: {
+						"task": "updatedArticle",
+						"articleID": result.insertedId.toHexString()
+					}
+				};
+				request.post(options, function(err,httpResponse,body) {
 					if (err != null) {
 						console.log("Could not update indexer.");
 						console.log(err.message);
