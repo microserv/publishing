@@ -3,7 +3,6 @@ var session = require('express-session')
 var bodyParser = require('body-parser')
 var jsonfile = require('jsonfile')
 var Grant = require('grant-express')
-var grant = new Grant(require('./config.json'))
 var morgan = require('morgan')
 var request = require('request');
 var MongoClient = require('mongodb').MongoClient;
@@ -16,6 +15,10 @@ var authUrl = CONFIGURATION.microauth._host
 var mdb_url = "mongodb://localhost:27017/IT2901";
 var indexer_url = "http://despina.128.no/indexer";
 
+CONFIGURATION.microauth.key = process.env.PUBLISHING_MICROAUTH_CLIENT_ID
+CONFIGURATION.microauth.secret = process.env.PUBLISHING_MICROAUTH_SECRET
+var grant = new Grant(CONFIGURATION)
+
 var app = express();
 app.use(session({ secret: 'topkek' }))
 app.use(grant)
@@ -24,13 +27,13 @@ app.use( bodyParser.json() );
 app.use(morgan('dev'));
 
 var REQUIRE_AUTH = {
-    LIST: false,
+    LIST: true,
     DETAIL: false,
     SAVE: false,
     DELETE: false
 }
 
-var REDIRECT_TO_AUTHORIZE = false;
+var REDIRECT_TO_AUTHORIZE = true;
 
 function isCredentialExpired(oauth2) {
     return oauth2.issued_at + oauth2.expires_in < Date.now()
@@ -48,6 +51,7 @@ function requiresAuthentication(req) {
             headers: {'Authorization': authorizationHeader},
           },
           function (err, response, body) {
+            console.log(err, body)
             if (err !== null || response.statusCode !== 200) {
                 return true
             } else {
@@ -72,6 +76,7 @@ app.post("/save_article", function (req, res) {
             if (REDIRECT_TO_AUTHORIZE) {
                 req.session.next = req.url
                 res.redirect('/connect/microauth')
+                return
             } else {
                 res.sendStatus(401, 'You need to be authenticated to do this action.')
                 return
@@ -143,6 +148,7 @@ app.get("/list", function (req, res) {
             if (REDIRECT_TO_AUTHORIZE) {
                 req.session.next = req.url
                 res.redirect('/connect/microauth')
+                return
             } else {
                 res.sendStatus(401, 'You need to be authenticated to do this action.')
                 return
@@ -232,6 +238,7 @@ app.delete("/article_json/*", function (req, res) {
             if (REDIRECT_TO_AUTHORIZE) {
                 req.session.next = req.url
                 res.redirect('/connect/microauth')
+                return
             } else {
                 res.sendStatus(401, 'You need to be authenticated to do this action.')
                 return
@@ -263,6 +270,6 @@ app.delete("/article_json/*", function (req, res) {
 	}
 });
 
-app.listen(3000, function () {
+app.listen(33095, function () {
 	console.log("Publishing app listening on port 3000!");
 });
