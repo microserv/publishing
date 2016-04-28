@@ -232,6 +232,11 @@ app.get("/article_json/*", function (req, res) {
 	}
 });
 
+app.get("/authorize_me", function (req, res) {
+  res.redirect('/connect/microauth')
+  return
+})
+
 app.delete("/article_json/*", function (req, res) {  
     if (REQUIRE_AUTH.DELETE) {
         if (requiresAuthentication(req)) {
