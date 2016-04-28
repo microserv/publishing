@@ -26,8 +26,8 @@ app.use(morgan('dev'));
 var REQUIRE_AUTH = {
     LIST: false,
     DETAIL: false,
-    SAVE: true,
-    DELETE: true
+    SAVE: false,
+    DELETE: false
 }
 
 var REDIRECT_TO_AUTHORIZE = false;
