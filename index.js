@@ -3,7 +3,6 @@ var session = require('express-session')
 var bodyParser = require('body-parser')
 var jsonfile = require('jsonfile')
 var Grant = require('grant-express')
-var grant = new Grant(require('./config.json'))
 var morgan = require('morgan')
 var request = require('request');
 var MongoClient = require('mongodb').MongoClient;
@@ -15,6 +14,10 @@ var CONFIGURATION = require('./config.json')
 var authUrl = CONFIGURATION.microauth._host
 var mdb_url = "mongodb://localhost:27017/IT2901";
 var indexer_url = "http://despina.128.no/indexer";
+
+CONFIGURATION.microauth.key = process.env.PUBLISHING_MICROAUTH_CLIENT_ID
+CONFIGURATION.microauth.secret = process.env.PUBLISHING_MICROAUTH_SECRET
+var grant = new Grant(CONFIGURATION)
 
 var app = express();
 app.use(session({ secret: 'topkek' }))
