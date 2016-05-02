@@ -275,6 +275,6 @@ app.delete("/article_json/*", function (req, res) {
 	}
 });
 
-app.listen(33095, function () {
+app.listen(3000, function () {
 	console.log("Publishing app listening on port 3000!");
 });
