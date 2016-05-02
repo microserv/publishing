@@ -27,10 +27,10 @@ app.use( bodyParser.json() );
 app.use(morgan('dev'));
 
 var REQUIRE_AUTH = {
-    LIST: true,
+    LIST: false,
     DETAIL: false,
-    SAVE: false,
-    DELETE: false
+    SAVE: true,
+    DELETE: true
 }
 
 var REDIRECT_TO_AUTHORIZE = true;
