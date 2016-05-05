@@ -12,7 +12,7 @@ var ObjectId = require('mongodb').ObjectID;
 var CONFIGURATION = require('./config.json')
 
 var authUrl = CONFIGURATION.microauth._host
-var mdb_url = "mongodb://localhost:27017/IT2901";
+var mdb_url = "mongodb://despina.128.no:27017//IT2901";
 var indexer_url = "http://despina.128.no/indexer";
 
 CONFIGURATION.microauth.key = process.env.PUBLISHING_MICROAUTH_CLIENT_ID
