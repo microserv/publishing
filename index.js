@@ -9,7 +9,7 @@ var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
 
-var CONFIGURATION = require('./config.json')
+var CONFIGURATION = require('./config.json')[process.env.NODE_ENV || 'dev'];
 
 var authUrl = CONFIGURATION.microauth._host
 var mdb_url = "mongodb://despina.128.no:27017/IT2901";

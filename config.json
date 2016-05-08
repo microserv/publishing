@@ -1,17 +1,36 @@
 {
-    "server": {
-        "protocol": "http",
-        "host": "localhost:33095"
+    "dev": {
+            "server": {
+                "protocol": "http",
+                "host": "localhost:33095"
+            },
+            "microauth": {
+                "_host": "http://127.0.0.1:33080/",
+                "authorize_url": "http://127.0.0.1:33080/oauth2/authorize/",
+                "access_url": "http://127.0.0.1:33080/oauth2/token/",
+                "oauth": 2,
+                "key": "",
+                "secret": "",
+                "scope": ["publishing.read", "publishing.write", "publishing.delete"],
+                "scope_delimiter": " ",
+                "callback": "/done"
+            }
     },
-    "microauth": {
-        "_host": "http://127.0.0.1:33080/",
-        "authorize_url": "http://127.0.0.1:33080/oauth2/authorize/",
-        "access_url": "http://127.0.0.1:33080/oauth2/token/",
-        "oauth": 2,
-        "key": "",
-        "secret": "",
-        "scope": ["publishing.read", "publishing.write", "publishing.delete"],
-        "scope_delimiter": " ",
-        "callback": "/done"
+    "prod": {
+            "server": {
+                "protocol": "http",
+                "host": "http://despina.128.no"
+            },
+            "microauth": {
+                "_host": "http://despina.128.no/auth",
+                "authorize_url": "http://despina.128.no/oauth2/authorize",
+                "access_url": "http://despina.128.no/oauth2/token",
+                "oauth": 2,
+                "key": "",
+                "secret": "",
+                "scope": ["publishing.read", "publishing.write", "publishing.delete"],
+                "scope_delimiter": " ",
+                "callback": "/done"
+            }
     }
 }
