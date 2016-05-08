@@ -19,7 +19,7 @@
     "prod": {
             "server": {
                 "protocol": "http",
-                "host": "http://despina.128.no"
+                "host": "despina.128.no"
             },
             "microauth": {
                 "_host": "http://despina.128.no/auth",
