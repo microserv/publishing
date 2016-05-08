@@ -30,7 +30,7 @@
                 "secret": "",
                 "scope": ["publishing.read", "publishing.write", "publishing.delete"],
                 "scope_delimiter": " ",
-                "callback": "/done"
+                "callback": "/publish/done"
             }
     }
 }
