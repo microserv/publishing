@@ -24,7 +24,7 @@
             "microauth": {
                 "_host": "http://despina.128.no/auth",
                 "authorize_url": "http://despina.128.no/oauth2/authorize",
-                "access_url": "http://despina.128.no/oauth2/token",
+                "access_url": "http://despina.128.no/oauth2/token/",
                 "oauth": 2,
                 "key": "",
                 "secret": "",
