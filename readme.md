@@ -73,7 +73,7 @@ An Http response with status code 500.
 ### article
 
 request:
-A GET request to /article/<id>
+A GET request to /article/id
 
 input:
 None.
@@ -95,7 +95,7 @@ An Http response with status code 500.
 ### article json
 
 request:
-A GET request to /article_json/<id>
+A GET request to /article_json/id
 
 input:
 None.
@@ -117,7 +117,7 @@ An Http response with status code 500.
 ### delete article
 
 request:
-A DELETE request to /article_json/<id>
+A DELETE request to /article_json/id
 
 input:
 None.
