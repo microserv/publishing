@@ -19,7 +19,8 @@
     "prod": {
             "server": {
                 "protocol": "http",
-                "host": "despina.128.no"
+                "host": "despina.128.no",
+                "subsite": "/publish/"
             },
             "microauth": {
                 "_host": "http://despina.128.no/auth",

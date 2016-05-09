@@ -14,6 +14,7 @@ var CONFIGURATION = require('./config.json')[process.env.NODE_ENV || 'dev'];
 var authUrl = CONFIGURATION.microauth._host
 var mdb_url = "mongodb://despina.128.no:27017/IT2901";
 var indexer_url = "http://despina.128.no/indexer";
+var subsite = CONFIGURATION.server.subsite
 
 CONFIGURATION.microauth.key = process.env.PUBLISHING_MICROAUTH_CLIENT_ID
 CONFIGURATION.microauth.secret = process.env.PUBLISHING_MICROAUTH_SECRET
@@ -74,7 +75,7 @@ app.post("/save_article", function (req, res) {
     if (REQUIRE_AUTH.SAVE) {
         if (requiresAuthentication(req)) {
             if (REDIRECT_TO_AUTHORIZE) {
-                req.session.next = req.url
+                req.session.next = subsite + req.url
                 res.redirect('/connect/microauth')
                 return
             } else {
@@ -146,7 +147,7 @@ app.get("/list", function (req, res) {
     if (REQUIRE_AUTH.LIST) {
         if (requiresAuthentication(req)) {
             if (REDIRECT_TO_AUTHORIZE) {
-                req.session.next = req.url
+                req.session.next = subsite + req.url
                 res.redirect('/connect/microauth')
                 return
             } else {
@@ -241,7 +242,7 @@ app.delete("/article_json/*", function (req, res) {
     if (REQUIRE_AUTH.DELETE) {
         if (requiresAuthentication(req)) {
             if (REDIRECT_TO_AUTHORIZE) {
-                req.session.next = req.url
+                req.session.next = subsite + req.url
                 res.redirect('/connect/microauth')
                 return
             } else {
