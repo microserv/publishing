@@ -1,4 +1,5 @@
 var express = require('express');
+var cookieParser = require('cookie-parser')
 var session = require('express-session')
 var bodyParser = require('body-parser')
 var jsonfile = require('jsonfile')
@@ -26,6 +27,7 @@ app.use(grant)
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use( bodyParser.json() );
 app.use(morgan('dev'));
+app.use(cookieParser());
 
 var REQUIRE_AUTH = {
     LIST: false,
@@ -147,7 +149,15 @@ app.get("/list", function (req, res) {
     if (REQUIRE_AUTH.LIST) {
         if (requiresAuthentication(req)) {
             if (REDIRECT_TO_AUTHORIZE) {
-                req.session.next = subsite + req.url
+                var next = subsite + req.url
+
+                if (req.cookies["next"]) {
+                    next = req.cookies["next"]
+                }
+
+                req.session.next = next
+                res.redirect('/connect/microauth')
+
                 res.redirect('/connect/microauth')
                 return
             } else {
