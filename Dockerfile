@@ -18,4 +18,7 @@ RUN npm install .
 
 RUN rm -rf /run && mkdir -p /run/nginx
 
+ENV SERVICE_NAME publishing
+ENV NODE_ENV prod
+
 EXPOSE 80
