@@ -244,8 +244,16 @@ app.get("/article_json/*", function (req, res) {
 });
 
 app.get("/authorize_me", function (req, res) {
-  res.redirect('/connect/microauth')
-  return
+    if (requiresAuthentication(req)) {
+        res.redirect('/connect/microauth')
+        if (req.cookies["next"]) {
+            req.session.next = req.cookies["next"]
+        }
+        return
+    } else {
+        res.sendStatus(200);
+        return
+    }
 })
 
 app.delete("/article_json/*", function (req, res) {  
