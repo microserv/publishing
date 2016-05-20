@@ -245,10 +245,10 @@ app.get("/article_json/*", function (req, res) {
 
 app.get("/authorize_me", function (req, res) {
     if (requiresAuthentication(req)) {
-        res.redirect('/connect/microauth')
         if (req.cookies["next"]) {
             req.session.next = req.cookies["next"]
         }
+        res.redirect('/connect/microauth')
         return
     } else {
         res.sendStatus(200);
