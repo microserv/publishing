@@ -13,8 +13,14 @@ var ObjectId = require('mongodb').ObjectID;
 var CONFIGURATION = require('./config.json')[process.env.NODE_ENV || 'dev'];
 
 var authUrl = CONFIGURATION.microauth._host
-var mdb_url = "mongodb://despina.128.no:27017/IT2901";
-var indexer_url = "http://despina.128.no/indexer";
+
+var mdb_url
+var dbName = "IT2901"
+setServiceIP("mongodb", setMongoURL)
+
+var indexer_url
+setServiceIP("indexer", setIndexerURL)
+
 var subsite = CONFIGURATION.server.subsite
 
 CONFIGURATION.microauth.key = process.env.PUBLISHING_MICROAUTH_CLIENT_ID
@@ -37,6 +43,22 @@ var REQUIRE_AUTH = {
 }
 
 var REDIRECT_TO_AUTHORIZE = true;
+
+function setMongoURL(ip) {
+        mdb_url = "mongodb://" + ip + ":27017/" + dbName
+}
+
+function setIndexerURL(ip) {
+        indexer_url = "http://" + ip
+}
+
+function setServiceIP(serviceName, callback) {
+  request('http://127.0.0.1:9001/' + serviceName, function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+                callback(body.replace(/"/g, ""))
+        }
+  })
+}
 
 function isCredentialExpired(oauth2) {
     return oauth2.issued_at + oauth2.expires_in < Date.now()
