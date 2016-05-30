@@ -117,7 +117,7 @@ app.post("/save_article", function (req, res) {
 					uri: indexer_url,
 					method: 'POST',
 					json: {
-						"task": "updatedArticle",
+						"task": 'publishedArticle',
 						"articleID": result.insertedId.toHexString()
 					}
 				};
