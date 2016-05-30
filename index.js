@@ -16,10 +16,10 @@ var authUrl = CONFIGURATION.microauth._host
 
 var mdb_url
 var dbName = "IT2901"
-setServiceIP("mongodb", setMongoURL)
+updateServiceIP("mongodb", formatMongoURL)
 
 var indexer_url
-setServiceIP("indexer", setIndexerURL)
+updateServiceIP("indexer", formatIndexerURL)
 
 var subsite = CONFIGURATION.server.subsite
 
@@ -44,15 +44,15 @@ var REQUIRE_AUTH = {
 
 var REDIRECT_TO_AUTHORIZE = true;
 
-function setMongoURL(ip) {
+function formatMongoURL(ip) {
         mdb_url = "mongodb://" + ip + ":27017/" + dbName
 }
 
-function setIndexerURL(ip) {
+function formatIndexerURL(ip) {
         indexer_url = "http://" + ip
 }
 
-function setServiceIP(serviceName, callback) {
+function updateServiceIP(serviceName, callback) {
   request('http://127.0.0.1:9001/' + serviceName, function (error, response, body) {
         if (!error && response.statusCode == 200) {
                 callback(body.replace(/"/g, ""))
@@ -109,6 +109,8 @@ app.post("/save_article", function (req, res) {
         }
     }
 	try {
+		updateServiceIP("mongodb", formatMongoURL)
+		updateServiceIP("indexer", formatIndexerURL)
 		MongoClient.connect(mdb_url, function(err, db) {
 			assert.equal(null, err);
 			db.collection("publishing").insertOne(req.body, function(err, result) {
@@ -189,6 +191,7 @@ app.get("/list", function (req, res) {
         }
     }
 	try {
+		updateServiceIP("mongodb", formatMongoURL)
 		MongoClient.connect(mdb_url, function(err, db) {
 			assert.equal(null, err);
 			var art_list = db.collection('publishing').find().toArray(function(err, documents) {
@@ -215,6 +218,7 @@ app.get("/article/*", function (req, res) {
 		var article_name = req.url.substr(-24);
 		var new_id = new ObjectId(article_name);
 		
+		updateServiceIP("mongodb", formatMongoURL)
 		MongoClient.connect(mdb_url, function(err, db) {
 			assert.equal(null, err);	
 			db.collection('publishing').findOne({"_id":new_id}, function(err, doc){
@@ -249,7 +253,7 @@ app.get("/article_json/*", function (req, res) {
 	try {
 		var article_name = req.url.substr(-24);
 		var new_id = new ObjectId(article_name);
-		
+		updateServiceIP("mongodb", formatMongoURL)
 		MongoClient.connect(mdb_url, function(err, db) {
 			assert.equal(null, err);	
 			db.collection('publishing').findOne({"_id":new_id}, function(err, doc){
@@ -294,7 +298,9 @@ app.delete("/article_json/*", function (req, res) {
 	try {
 		var article_name = req.url.substr(-24);
 		var new_id = new ObjectId(article_name);
-		
+		updateServiceIP("mongodb", formatMongoURL)
+		updateServiceIP("indexer", formatIndexerURL)
+
 		MongoClient.connect(mdb_url, function(err, db) {
 			assert.equal(null, err);
 			db.collection('publishing').remove({"_id":new_id});
