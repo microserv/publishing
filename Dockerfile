@@ -1,4 +1,4 @@
-FROM localhost:5000/backend-comm-mongo
+FROM 128.no:8080/backend-comm-mongo
 MAINTAINER Pål Karlsrud <paal@128.no>
 
 ENV BASE_DIR /var/publishing
